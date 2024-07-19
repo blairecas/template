@@ -34,7 +34,7 @@ if %ERRORLEVEL% NEQ 0 ( exit /b )
 if %ERRORLEVEL% NEQ 0 ( exit /b )
 php -f ../scripts/lst2bin.php _bmain.lst ./release/test.sav sav
 
-..\..\macro11\rt11dsk.exe d main.dsk .\release\test.sav >NUL
-..\..\macro11\rt11dsk.exe a main.dsk .\release\test.sav >NUL
+..\scripts\rt11dsk.exe d main.dsk .\release\test.sav >NUL
+..\scripts\rt11dsk.exe a main.dsk .\release\test.sav >NUL
 
 echo.
