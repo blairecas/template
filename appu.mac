@@ -1,0 +1,192 @@
+	.title	PPU
+	.list	MEB
+	.enabl	LC, AMA
+	
+	.asect
+	.=0
+
+@include common.mac
+@include ppu_header.mac
+
+PPMain:	; clean upper PPU RAM (with screen plane 0)
+	mov	#PpuEnd, R0
+	mov	#177000-PpuEnd/2, R3
+	clr	(R0)+
+	sob	R3, .-2
+
+	; timers
+	bic	#^B0000001000000000, @#177054	; disable vsync in PPU
+	bis	#^B0000000100000000, @#177054	; enable vsync in CPU
+	call	TimerInit			; init pp timer
+	bic	#200, @#177716			; turn off sound generator
+
+	; keyboard
+	mov	#KeyboardInt,  @#300
+	bis	#100, @#177700			; allow keyboard interrupts
+
+        ; set 'PPU is ready'
+	mov	#PpuComm/2, @#177010
+	clr	@#177014
+
+	; and here we go
+	mtps	#0
+
+	br .
+
+
+; //////////////////////////////////////////////////////////////////////////////
+; // Utils
+; //////////////////////////////////////////////////////////////////////////////
+
+; empty interrupt
+RtiAdr:	rti
+
+
+; clear vram plane 0
+ClearPlane0:
+	mov	#100000, R0
+	mov	#177000-100000/2, R3
+	clr	(R0)+
+	sob	R3, .-2
+	return
+
+
+; pp timer ready wait
+TimerInit:
+	clr	@#177710
+	tst	@#177714
+	tst	@#177710
+	bne	TimerInit
+	return
+
+
+; keyboard interrupt
+KeyboardInt:
+	mov	R0, -(SP)
+	mov	@#177702, R0			; (!) read this register ONLY ONCE
+	mov	R1, -(SP)
+	mov	R2, -(SP)
+	mov	R3, -(SP)
+	mov	R4, -(SP)
+	mov	R5, -(SP)
+	mov	#177010, R4
+	mov	#177014, R5
+	mov	(R4), -(SP)			; save vaddr register 
+	; now R0-keycode, (R4)-vaddr, (R5)-vdata
+	mov	#KeyCurrent/2, (R4)
+	mov	R0, (R5)
+	bit	#^B10000000, R0			; key was released?
+	bne	50$
+	; 0 2 4 6 8 10 == dn,dn,up,up,dn,up ? -> combo is pressed
+	; put pressed keys to buffer
+	mov	#KeysBuffer, R1
+	mov	#KeysBuffer+1, R2
+	movb	(R2)+, (R1)+
+	movb	(R2)+, (R1)+
+	movb	(R2)+, (R1)+
+	movb	(R2)+, (R1)+
+	movb	(R2)+, (R1)+
+	movb	R0, (R1)+
+	; check for key buffer combo ^_^
+	mov	#6., R3
+2$:	cmpb	(R2)+, -(R1)
+	bne	4$
+	sob	R3, 2$	
+	mov	#KeyCombo/2, (R4)		; set 'combo is pressed'
+	inc	(R5)
+4$:	; -----------------
+	; == key pressed ==
+	mov	#KeyAny/2, (R4)			; 'anykey' is also pressed
+	inc	(R5)
+	mov	#KeysDN, R1
+10$:	tst	(R1)
+	beq	90$
+	cmp	R0, (R1)+
+	beq	20$
+	add	#4, R1
+	br	10$
+20$:	; got our key
+	mov	(R1)+, (R4)			; set CPU addr
+	inc	(R5)				; must be mov #1,(R5) but its ok with inc
+	mov	(R1)+, (R4)
+	beq	90$	
+	clr	(R5)
+	br	90$
+50$:	; == key released - R0 = ^B1000xxxx
+	bic	#^B1111111111110000, R0
+	asl	R0
+	mov	KeysUP+2(R0), R1		; finish addr
+	mov	KeysUP(R0), R0			; start addr
+60$:	cmp	R0, R1				; finished?
+	bhis	90$
+	mov	(R0)+, (R4)			; set CPU addr
+	clr	(R5)				; and clear key
+	br	60$
+	;
+90$:	mov	(SP)+, (R4)
+	mov	(SP)+, R5
+	mov	(SP)+, R4
+	mov	(SP)+, R3
+	mov	(SP)+, R2
+	mov	(SP)+, R1
+	mov	(SP)+, R0
+	rti
+
+; keys release - clear addrs
+KeysUP:	.word	Kup0000, Kup0001, Kup0010, Kup0011, Kup0100, Kup0101, Kup0110, Kup0111
+	.word	Kup1000, Kup1001, Kup1010, Kup1011, Kup1100, Kup1101, Kup1110, Kup1111
+	.word	Kup7777
+Kup0000:
+Kup0001:
+Kup0010:
+Kup0011:
+Kup0100:	.word	KeyStop/2
+Kup0101:	.word	KeyShift/2
+Kup0110:
+Kup0111:
+Kup1000:	.word	Key1/2, KeyK1/2
+Kup1001:	.word	Key2/2, KeyK2/2
+Kup1010:	.word	Key3/2, KeyUst/2, KeyK3/2
+Kup1011:	.word	Key4/2, KeySpace/2, KeyRight/2
+Kup1100:	.word	Key5/2, KeyDown/2, KeyUp/2, KeyK4/2
+Kup1101:	.word	Key6/2, KeyK5/2
+Kup1110:	.word	Key7/2, KeyLeft/2
+Kup1111:	.word	Key8/2
+Kup7777:
+
+; keys press - set 1st addr, clear second
+KeysDN:	.word	^B00000100, KeyStop/2,		0
+	.word	^B01101010, KeyUst/2,		0
+	.word	^B00011000, Key1/2,		0
+	.word	^B00011001, Key2/2,		0
+	.word	^B00011010, Key3/2,		0
+	.word	^B00001011, Key4/2,		0
+	.word	^B00011100, Key5/2,		0
+	.word	^B00011101, Key6/2,		0
+	.word	^B00001110, Key7/2,		0
+	.word	^B00001111, Key8/2,		0
+	.word	^B01001011, KeySpace/2,		0
+	.word	^B01011100, KeyDown/2,		KeyUp/2
+	.word	^B01101100, KeyUp/2,		KeyDown/2
+	.word	^B01001110, KeyLeft/2, 		KeyRight/2
+	.word	^B01011011, KeyRight/2,		KeyLeft/2
+	.word	^B00001000, KeyK1/2,		0
+	.word	^B00001001, KeyK2/2,		0
+	.word	^B00001010, KeyK3/2,		0
+	.word	^B00001100, KeyK4/2,		0
+	.word	^B00001101, KeyK5/2,		0
+	.word	^B01000101, KeyShift/2,		0
+	.word	0
+	
+KeysBuffer:	.blkb	6				; last 6 keys
+		.byte	154, 134, 154, 154, 134, 134	; dn,dn,up,up,dn,up written backwards
+
+
+; //////////////////////////////////////////////////////////////////////////////
+; // The End
+; //////////////////////////////////////////////////////////////////////////////
+
+.even
+PpuEnd:
+
+	.end	Start

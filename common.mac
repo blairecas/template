@@ -1,0 +1,46 @@
+
+; //////////////////////////////////////////////////////////////////////////////	
+; // CPU <-> PPU comm addrs 
+; //////////////////////////////////////////////////////////////////////////////
+
+; Keyboard
+Key8		= 157670	; Key 8
+Key7		= 157672	; key 7
+Key6		= 157674	; key 6
+Key5		= 157676	; key 5
+Key4		= 157700	; key 4
+Key3		= 157702	; key 3
+Key2		= 157704	; key 2
+Key1		= 157706	; key 1
+KeyK5		= 157710	; Key K5
+KeyK4		= 157712	; key K4
+KeyK3		= 157714	; key K3
+KeyK2		= 157716	; key K2
+KeyK1		= 157720	; key K1
+KeyStop		= 157722	; key STOP
+KeyUst		= 157724	; key UST
+KeyShift	= 157726	; key SHIFT
+KeyEnter	= 157730	; key ENTER
+KeySpace	= 157732	; key SPACE
+KeyRight	= 157734	; key ->
+KeyLeft		= 157736	; key <-
+KeyDown		= 157740	; key DOWN
+KeyUp		= 157742	; key UP
+KeyCombo	= 157744	; combo was pressed
+KeyAny		= 157746	; key 'anykey'
+KeyCurrent	= 157750	; current key
+
+; Misc
+PpuRtiCount	= 157752	; interrupts count in PPU
+PpuWaitCount	= 157754	; PPU wait cycles number
+VsyncCount2	= 157756	; vsync 2 counter (PPU)
+VsyncCount1	= 157760	; vsync 1 counter (CPU)
+
+; command and data
+PpuR0		= 157762
+PpuR1		= 157764
+PpuR2		= 157766
+PpuR3		= 157770
+PpuR4		= 157772
+PpuR5		= 157774
+PpuComm		= 157776	; PPU command

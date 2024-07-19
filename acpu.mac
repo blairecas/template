@@ -1,0 +1,64 @@
+	.title	CPU
+	.list	MEB
+	.enabl	LC, AMA
+	
+	.asect
+	.=0
+
+@include common.mac
+@include cpu_header.mac
+
+Start:	; clean upper CPU RAM
+	mov	#CpuEnd, R0
+	mov	#157776-CpuEnd/2, R3
+	clr	(R0)+
+	sob	R3, .-2
+
+	; clear screen planes 12
+	call	ClearPlanes12
+
+	; set vsync int
+	mov	#VsyInt, @#100
+
+	; and here we go
+	mtps	#0
+
+	br	.
+
+
+; //////////////////////////////////////////////////////////////////////////////
+; // Utils
+; //////////////////////////////////////////////////////////////////////////////
+
+; empty interrupt
+RtiAdr:	rti
+
+; vsync interrupt
+VsyInt:	inc	VsyncCount1
+	rti
+
+; prepare regs for vaddr
+SetVreg:
+	mov	#176640, R4
+	mov	#176642, R5
+	return
+
+; clear screen planes 1,2
+ClearPlanes12:
+	call	SetVreg
+	mov	#40000, R3
+	mov	#100000, (R4)
+10$:	clr	(R5)
+	inc	(R4)
+	sob	R3, 10$
+	return
+
+
+; //////////////////////////////////////////////////////////////////////////////
+; // The End
+; //////////////////////////////////////////////////////////////////////////////
+
+.even
+CpuEnd:
+
+	.end	Start
