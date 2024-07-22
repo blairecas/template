@@ -3,6 +3,12 @@
 ; // CPU <-> PPU comm addrs 
 ; //////////////////////////////////////////////////////////////////////////////
 
+; Mouse
+NoMouse		= 157650		; do we have a mouse hardware
+MouseBtn	= 157652		; Mouse button
+MouseY		= 157654		; Mouse Y coord
+MouseX		= 157656		; Mouse X coord
+
 ; Keyboard
 Key8		= 157670	; Key 8
 Key7		= 157672	; key 7
@@ -31,16 +37,15 @@ KeyAny		= 157746	; key 'anykey'
 KeyCurrent	= 157750	; current key
 
 ; Misc
-PpuRtiCount	= 157752	; interrupts count in PPU
-PpuWaitCount	= 157754	; PPU wait cycles number
-VsyncCount2	= 157756	; vsync 2 counter (PPU)
-VsyncCount1	= 157760	; vsync 1 counter (CPU)
+PpuRtiCount	= 157754	; interrupts count in PPU
+PpuWaitCount	= 157756	; PPU wait cycles number
+VsyncCount2	= 157760	; vsync 2 counter (PPU)
+VsyncCount1	= 157762	; vsync 1 counter (CPU)
 
 ; command and data
-PpuR0		= 157762
-PpuR1		= 157764
-PpuR2		= 157766
-PpuR3		= 157770
-PpuR4		= 157772
-PpuR5		= 157774
+PpuCommQue	= 157764 
+PpuR0		= 157766
+PpuR1		= 157770
+PpuR2		= 157772
+PpuR3		= 157774
 PpuComm		= 157776	; PPU command

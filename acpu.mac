@@ -50,6 +50,8 @@ ClearPlanes12:
 	mov	#100000, (R4)
 10$:	clr	(R5)
 	inc	(R4)
+	clr	(R5)
+	inc	(R4)
 	sob	R3, 10$
 	return
 
