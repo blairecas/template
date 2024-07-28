@@ -1,3 +1,4 @@
+.gitignore
 *.lst
 *.log
 *.obj
@@ -5,5 +6,3 @@
 *.zip
 *.bin
 _*.*
-system.dsk
-rt11.exe

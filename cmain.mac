@@ -1,0 +1,198 @@
+	.title	MAIN
+	.mcall	.print .exit .setto
+	.enabl	LC ; without AMA, contains relocatable code
+	
+	.asect
+	.=1000
+
+Start:	.print	#MsgHello
+	call	GetAllMem
+
+	; start PPU code
+	mov	#PpuStart, R4
+	mov	#PpuEnd-PpuStart/2, R5
+	call	PPRun
+	; wait for PPU is ready
+	tst	PpuComm
+	bne	.-4
+
+	; ask PPU to do something
+	mov	#1, PpuComm
+	tst	PpuComm
+	bne	.-4
+
+	; ask PPU to exit
+	mov	#-1, PpuComm
+	tst	PpuComm
+	bne	.-4	
+
+	; release PPU memory
+	call	PPRele
+
+	; exiting
+	mov	ErrCode, @#52			; set error to exit from .COM files if needed
+	clr	R0				; .hreset before .exit
+	.exit
+
+ErrCode:	.word	0
+MsgHello:	.asciz	"Template says hello"
+		.even
+
+
+; //////////////////////////////////////////////////////////////////////////////
+; // Memory and utils
+; //////////////////////////////////////////////////////////////////////////////
+
+RamTop:		.word	0			; top addr of available RAM
+
+MsgSettop:	.asciz	"? can't use all memory (.settop failed)"
+MsgNoMemory:	.asciz	"? can't allocate memory up to 100000"
+		.even 
+
+; code from Alex_K
+GetAllMem:
+	mov	@#54, R0			; addr of RMON
+	mov	266(R0), R0			; addr of USR? (in case of set USR SWAP)
+	tst	-(R0)				; -2 bytes
+	.setto
+	bcc	10$
+	.print	#MsgSettop
+	.exit
+10$:	mov	R0, RamTop
+	cmp	R0, #100000			; at least top must be 100000 (i want so :)
+	bhis	20$
+	.print	#MsgNoMemory
+	.exit
+20$:	; and clear memory to top from end of code
+	mov	#PpuEnd, R0
+	mov	RamTop, R3
+	sub	R0, R3
+	clrb	(R0)+
+	sob	R3, .-2
+	return 
+
+
+; //////////////////////////////////////////////////////////////////////////////
+; // CPU <-> PPU
+; //////////////////////////////////////////////////////////////////////////////
+
+MsgPpuNoMem:	
+	.asciz	"? unable to allocate memory in PPU"
+	.even
+
+; PPU message
+;
+PPmsg:	.word	PPArr				; address of beginning of array
+        .word	177777				; end of transmission
+
+; PPU data exchange array
+;
+PPArr:	.byte	0				; return value (0 - OK)
+PPCmd:	.byte	0				; command
+	.word	32				; device type (32 - PPU mem)
+PPApp:	.word	0				; address for PPU
+PPAcp:	.word	0				; address for CPU
+PPLen:	.word	0				; length in words
+
+; send command to PPU with exch array
+PPSen:	mov	R0, -(SP)
+	mov	R1, -(SP)
+	mov	#PPMsg, R0			; array address
+	mov	#5, R1				; bytes to send+1 (sending from @#PP_MSG)
+	br	1$
+2$:	movb	(R0)+, @#176676
+1$:	tstb	@#176674			; test if we are ready to send
+	bpl	1$				; cycle if >= 0 (not set last bit in byte)
+	sob	R1, 2$
+	mov	(SP)+, R1
+	mov	(SP)+, R0
+	return
+
+; send and start PPU code
+; R4 - start addr in CPU
+; R5 - length / 2
+PPRun:	movb	#1, PPCmd			; 1 - allocate memory
+	mov	R5, PPLen
+	call	PPSen
+	tstb	PPArr				; test if allocate success
+	beq	1$				; 0 - OK
+	.print	#MsgPpuNoMem
+	.exit					; fatal error - out of memory in PPU
+1$:	movb	#20, PPCmd			; 20 - write to PPU mem
+	mov	R5, PPLen
+	mov 	R4, PPAcp
+	call	PPSen
+	movb	#30, PPCmd			; 30 - run
+	call	PPSen
+	return
+
+; release PPU memory
+PPRele:	movb	#2, PPCmd			; 2 - release memory
+	call	PPSen
+	return
+
+
+; //////////////////////////////////////////////////////////////////////////////
+; // PPU code start
+; //////////////////////////////////////////////////////////////////////////////
+
+PpuStart:
+	mtps	#200
+	clr	R0
+	call	@7132(R0)			; stop FD motor
+
+	; damn that hacks - need to correct memory descriptors
+	mov	PC, R0
+	add	#PpuStart-., R0			; start of program
+	mov	#PpuEnd-PpuStart, -(R0)		; write length of current PPU code block
+	sub	#4, R0				; addr of our descriptor
+	mov	PC, R1
+	add	#PpuEnd-., R1			; end of program
+	mov	#77772, R2
+	sub	R1, R2				; length of free block (assume our program is last though it's incorrect)
+	clr	(R1)+				; 'free'
+	mov	R0, (R1)+			; addr of previous descriptor
+	mov	R2, (R1)+			; length of free mem
+
+	; other init code here
+	; ...
+	
+	call	PpuDone				; signal to CPU that we are working now
+	mtps	#0
+
+; main PPU loop
+PpuMain:
+	mov	#PpuComm/2, @#177010		; get command from CPU
+	mov	@#177014, R0
+	beq	PpuMain				; no command given, cycle then
+	bmi	PpuExit				; 'exit' command
+
+	; do something here
+	; ...
+	; then set flag as 'done'
+	call	PpuDone
+	br	PpuMain
+	
+; exit PPU code
+PpuExit:
+	call	PpuDone
+	mtps	#0				; just in case
+	return
+
+; set flag as 'done'
+PpuDone:
+	mov	#PpuComm/2, @#177010		; signal to CPU that we are finished
+	clr	@#177014
+	return
+
+; data
+PpuComm:	.word	177777
+
+PpuEnd:
+
+; //////////////////////////////////////////////////////////////////////////////
+; // PPU code end
+; //////////////////////////////////////////////////////////////////////////////
+
+
+	.end	Start
