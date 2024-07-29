@@ -1,7 +1,4 @@
 *.lst
-*.log
 *.obj
-*.dat
-*.zip
-*.bin
+*.log
 _*.*
