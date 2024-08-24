@@ -120,10 +120,10 @@ PPRun:	movb	#1, PPCmd			; 1 - allocate memory
 	mov	R5, PPLen
 	call	PPSen
 	tstb	PPArr				; test if allocate success
-	beq	1$				; 0 - OK
+	beq	10$				; 0 - OK
 	.print	#MsgPpuNoMem
 	.exit					; fatal error - out of memory in PPU
-1$:	movb	#20, PPCmd			; 20 - write to PPU mem
+10$:	movb	#20, PPCmd			; 20 - write to PPU mem
 	mov	R5, PPLen
 	mov 	R4, PPAcp
 	call	PPSen

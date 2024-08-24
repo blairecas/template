@@ -34,6 +34,10 @@ Start:	mtps	#200				; stop right there, you interrupts
 ; // CPU <-> PPU
 ; //////////////////////////////////////////////////////////////////////////////
 
+MsgPpuNoMem:
+	.asciz	"? unable to allocate memory in PPU"
+	.even 
+
 ; PPU message
 PPMSG:	.word	PPARR				; address of beginning of array
         .word	177777				; end of transmission
@@ -61,9 +65,14 @@ PPSen:	mov	#PPMSG, R0			; array address
 ; R5 - length / 2
 PPRun:	movb	#1, PPCMD			; 1 - allocate memory
 	mov	R5, PPLEN
-	call	PPSEN			
-	; (!) warn - no testing for success (!)
-	movb	#20, PPCMD			; 20 - write to PPU mem
+	call	PPSEN
+	tstb	PPARR				; test if allocate success
+	beq	10$				; zero byte - OK
+	mtps	#0
+	mov	#MsgPpuNoMem, R0
+	emt	#351				; .print
+	emt	#350				; .exit
+10$:	movb	#20, PPCMD			; 20 - write to PPU mem
 	mov	R5, PPLEN
 	mov 	R4, PPACP
 	call	PPSEN
@@ -82,7 +91,7 @@ PpuLoaderStart:
 	mtps	#200
 	clr	R0
 	call	@7132(R0)			; stop FD
-	mov	#361, @#177054			; set ROM banks as VRAM
+	mov	#361, @#177054			; set ROM banks as RAM
 	; relocate code to the top of RAM
 	mov	PC, R0
 	add	#PpuLoaderUnp-., R0
