@@ -17,8 +17,8 @@ PPMain:	; clean upper PPU RAM (with screen plane 0)
 	; timers
 	bic	#^B0000001000000000, @#177054	; disable vsync in PPU
 	bis	#^B0000000100000000, @#177054	; enable vsync in CPU
+	bic	#^B0001111110000000, @#177716	; sound init (mixer off) 	
 	call	TimerInit			; init pp timer
-	bic	#200, @#177716			; turn off sound generator
 
 	; keyboard
 	mov	#KeyboardInt,  @#300
@@ -37,9 +37,6 @@ PPMain:	; clean upper PPU RAM (with screen plane 0)
 ; //////////////////////////////////////////////////////////////////////////////
 ; // Utils
 ; //////////////////////////////////////////////////////////////////////////////
-
-; empty interrupt
-RtiAdr:	rti
 
 
 ; clear vram plane 0

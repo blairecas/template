@@ -1,9 +1,14 @@
 	.title	MAIN
 	.mcall	.print .exit .setto
 	.enabl	LC ; without AMA, contains relocatable code
-	
+
 	.asect
 	.=1000
+
+; Simgle .mac for both processors code
+;
+;
+
 
 Start:	.print	#MsgHello
 	call	GetAllMem

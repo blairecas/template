@@ -30,9 +30,6 @@ Start:	; clean upper CPU RAM
 ; // Utils
 ; //////////////////////////////////////////////////////////////////////////////
 
-; empty interrupt
-RtiAdr:	rti
-
 ; vsync interrupt
 VsyInt:	inc	VsyncCount1
 	rti
