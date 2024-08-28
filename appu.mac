@@ -144,7 +144,7 @@ Kup0111:
 Kup1000:	.word	Key1/2, KeyK1/2
 Kup1001:	.word	Key2/2, KeyK2/2
 Kup1010:	.word	Key3/2, KeyUst/2, KeyK3/2
-Kup1011:	.word	Key4/2, KeySpace/2, KeyRight/2
+Kup1011:	.word	Key4/2, KeySpace/2, KeyRight/2, KeyEnter/2
 Kup1100:	.word	Key5/2, KeyDown/2, KeyUp/2, KeyK4/2
 Kup1101:	.word	Key6/2, KeyK5/2
 Kup1110:	.word	Key7/2, KeyLeft/2
@@ -154,6 +154,7 @@ Kup7777:
 ; keys press - set 1st addr, clear second
 KeysDN:	.word	^B00000100, KeyStop/2,		0
 	.word	^B01101010, KeyUst/2,		0
+	.word	^B01101011, KeyEnter/2,		0
 	.word	^B00011000, Key1/2,		0
 	.word	^B00011001, Key2/2,		0
 	.word	^B00011010, Key3/2,		0
