@@ -1,51 +1,69 @@
-
-; //////////////////////////////////////////////////////////////////////////////	
-; // CPU <-> PPU comm addrs 
+; //////////////////////////////////////////////////////////////////////////////
+; // Video
 ; //////////////////////////////////////////////////////////////////////////////
 
-; Mouse
-NoMouse		= 157650		; do we have a mouse hardware
-MouseBtn	= 157652		; Mouse button
-MouseY		= 157654		; Mouse Y coord
-MouseX		= 157656		; Mouse X coord
+C_VADDR		= 100000
+C_SCRWID	= 40.
 
-; Keyboard
-Key8		= 157670	; Key 8
-Key7		= 157672	; key 7
-Key6		= 157674	; key 6
-Key5		= 157676	; key 5
-Key4		= 157700	; key 4
-Key3		= 157702	; key 3
-Key2		= 157704	; key 2
-Key1		= 157706	; key 1
-KeyK5		= 157710	; Key K5
-KeyK4		= 157712	; key K4
-KeyK3		= 157714	; key K3
-KeyK2		= 157716	; key K2
-KeyK1		= 157720	; key K1
-KeyStop		= 157722	; key STOP
-KeyUst		= 157724	; key UST
-KeyShift	= 157726	; key SHIFT
-KeyEnter	= 157730	; key ENTER
-KeySpace	= 157732	; key SPACE
-KeyRight	= 157734	; key ->
-KeyLeft		= 157736	; key <-
-KeyDown		= 157740	; key DOWN
-KeyUp		= 157742	; key UP
-KeyCombo	= 157744	; combo was pressed
-KeyAny		= 157746	; key 'anykey'
-KeyCurrent	= 157750	; current key
 
-; Misc
-PpuRtiCount	= 157754	; interrupts count in PPU
-PpuWaitCount	= 157756	; PPU wait cycles number
-VsyncCount2	= 157760	; vsync 2 counter (PPU)
-VsyncCount1	= 157762	; vsync 1 counter (CPU)
+; //////////////////////////////////////////////////////////////////////////////
+; // Various newmade devices (PPU addrs)
+; //////////////////////////////////////////////////////////////////////////////
+
+C_AY_PORT1	= 177360		; aberrant's AY devices
+C_AY_PORT2	= 177362		; mov #AYREG.. movb #AYDATA..
+C_AY_PORT3	= 177364
+C_MIDI_PORT	= 177366		; general midi
+C_MOUSE_PORT	= 177400		; [YYYYYYYLXXXXXXXR] X,Y 7-bit signed
+
+
+; //////////////////////////////////////////////////////////////////////////////	
+; // CPU <-> PPU comm addrs (CPU addrs)
+; //////////////////////////////////////////////////////////////////////////////
 
 ; command and data
-PpuCommQue	= 157764 
-PpuR0		= 157766
-PpuR1		= 157770
-PpuR2		= 157772
-PpuR3		= 157774
-PpuComm		= 157776	; PPU command
+PpuComm		= 157776		; PPU command 
+PpuR3		= PpuComm - 002
+PpuR2		= PpuComm - 004
+PpuR1		= PpuComm - 006
+PpuR0		= PpuComm - 010
+PpuCommQue	= PpuComm - 012
+
+; misc
+PpuWaitCount	= PpuComm - 020		; PPU wait cycles number
+VsyncCount2	= PpuComm - 022		; vsync 2 counter (PPU)
+VsyncCount1	= PpuComm - 024		; vsync 1 counter (CPU)
+
+; keyboard
+KeyCurrent	= PpuComm - 030
+KeyAny		= PpuComm - 032
+KeyK1		= PpuComm - 034
+KeyK2		= PpuComm - 036
+KeyK3		= PpuComm - 040
+KeyK4		= PpuComm - 042
+KeyK5		= PpuComm - 044
+KeyPom		= PpuComm - 046
+KeyUst		= PpuComm - 050
+KeyIsp		= PpuComm - 052
+KeySbr		= PpuComm - 054
+KeyStop		= PpuComm - 056
+KeyAp2		= PpuComm - 060
+KeySemi		= PpuComm - 062
+Key1		= PpuComm - 064
+Key2		= PpuComm - 066
+Key3		= PpuComm - 070
+Key4		= PpuComm - 072
+Key5		= PpuComm - 074
+Key6		= PpuComm - 076
+Key7		= PpuComm - 100
+Key8		= PpuComm - 102
+Key9		= PpuComm - 104
+Key0		= PpuComm - 106
+KeyTab		= PpuComm - 110
+KeyEnter	= PpuComm - 112
+KeyShift	= PpuComm - 114
+KeySpace	= PpuComm - 116
+KeyLeft		= PpuComm - 120
+KeyUp		= PpuComm - 122
+KeyRight	= PpuComm - 124
+KeyDown		= PpuComm - 126
