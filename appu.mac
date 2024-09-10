@@ -1,5 +1,5 @@
 	.title	PPU
-;	.list	MEB
+	.list	MEB
 	.enabl	LC, AMA
 	
 	.asect
@@ -139,10 +139,10 @@ KeyboardInt:
 	mov	(SP)+, R0
 	rti 
 
-; key up scancodes to rel addrs
-.macro	.mku0	A, B, C, D
+; key up scancodes table
+	.macro	.mku0	A, B, C, D
 	.byte	A-KeyAny/2, B-KeyAny/2, C-KeyAny/2, D-KeyAny/2
-.endm
+	.endm
 KeysUpTable:
 	.mku0	KeyStop,	KeyAny,		KeyAny,		KeyAny		; 0100
 	.mku0 	KeyShift,	KeyAny,		KeyAny,		KeyAny		; 0101
@@ -157,10 +157,10 @@ KeysUpTable:
 	.mku0	Key7, 		Key0,		KeyLeft,	KeyAny		; 1110
 	.mku0	Key8,		Key9,		KeyAny,		KeyAny		; 1111
 
-; keys press - set 1st addr, clear second
-.macro	.mkd0	A, B, C, D, E, F, G, H
+; keys down scancodes table
+	.macro	.mkd0	A, B, C, D, E, F, G, H
 	.byte	A-KeyAny/2, B-KeyAny/2, C-KeyAny/2, D-KeyAny/2, E-KeyAny/2, F-KeyAny/2, G-KeyAny/2, H-KeyAny/2
-.endm
+	.endm
 KeysDownTable:
 	;	0		1		2		3		4		5		6		7
 	.mkd0	KeyAny,		KeyAny,		KeyAny,		KeyAny,		KeyStop,	KeyAny,		KeyAp2,		KeySemi		; 000
