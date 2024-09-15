@@ -14,8 +14,8 @@ Start:	; clean upper CPU RAM
 	clr	(R0)+
 	sob	R3, .-2
 
-	; clear screen planes 12
-	call	ClearPlanes12
+	; clear CPU RAM 1,2
+	call	ClearRam12
 
 	; set vsync int
 	mov	#VsyInt, @#100
@@ -41,7 +41,7 @@ SetVreg:
 	return
 
 ; clear screen planes 1,2
-ClearPlanes12:
+ClearRam12:
 	call	SetVreg
 	mov	#40000, R3
 	mov	#100000, (R4)

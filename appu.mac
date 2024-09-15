@@ -87,10 +87,10 @@ ClearPlane0:
 
 ; pp timer ready wait
 TimerInit:
-	clr	@#177710
-	tst	@#177714
-	tst	@#177710
-	bne	TimerInit
+	clr	@#177710			; clear state, also stop timer
+	clr	@#177712			; clear buffer
+	tst	@#177714			; read current value
+	bne	.-4				; wait until cleared
 	return
 
 
