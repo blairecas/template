@@ -34,6 +34,17 @@ if %ERRORLEVEL% NEQ 0 ( exit /b )
 if %ERRORLEVEL% NEQ 0 ( exit /b )
 php -f ../scripts/lst2bin.php _bmain.lst ./release/bmain.sav sav
 
+del _acpu.mac
+del _appu.mac
+del _bmain.mac
+del _acpu.lst
+del _appu.lst
+del _bmain.lst
+del _acpu.bin
+del _acpu_lz.bin
+del _appu.bin
+del _appu_lz.bin
+
 ..\scripts\rt11dsk.exe d main.dsk .\release\bmain.sav >NUL
 ..\scripts\rt11dsk.exe a main.dsk .\release\bmain.sav >NUL
 

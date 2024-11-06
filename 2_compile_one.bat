@@ -10,6 +10,9 @@ if %ERRORLEVEL% NEQ 0 ( exit /b )
 if %ERRORLEVEL% NEQ 0 ( exit /b )
 php -f ../scripts/lst2bin.php _cmain.lst ./release/cmain.sav sav
 
+del _cmain.mac
+del _cmain.lst
+
 ..\scripts\rt11dsk.exe d main.dsk .\release\cmain.sav >NUL
 ..\scripts\rt11dsk.exe a main.dsk .\release\cmain.sav >NUL
 
