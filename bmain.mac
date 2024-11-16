@@ -47,7 +47,7 @@ PPARR:	.byte	0				; return value (0 - OK)
 PPCMD:	.byte	0				; command
 	.word	32				; device type (32 - PPU mem)
 PPAPP:	.word	0				; address for PPU
-PPACP:	.word	0				; address for CPU
+PPACP:	.word	0				; address for CPU (length for mem allocate)
 PPLEN:	.word	0				; length in words
 
 ; send command to PPU with exch array
@@ -64,7 +64,7 @@ PPSen:	mov	#PPMSG, R0			; array address
 ; R4 - start addr in CPU
 ; R5 - length / 2
 PPRun:	movb	#1, PPCMD			; 1 - allocate memory
-	mov	R5, PPLEN
+	mov	R5, PPACP
 	call	PPSEN
 	tstb	PPARR				; test if allocate success
 	beq	10$				; zero byte - OK
@@ -73,12 +73,11 @@ PPRun:	movb	#1, PPCMD			; 1 - allocate memory
 	emt	#351				; .print
 	emt	#350				; .exit
 10$:	movb	#20, PPCMD			; 20 - write to PPU mem
-	mov	R5, PPLEN
 	mov 	R4, PPACP
+	mov	R5, PPLEN
 	call	PPSEN
 	movb	#30, PPCMD			; 30 - run
-	call	PPSEN
-	return 
+	br	PPSEN
 
 
 ; //////////////////////////////////////////////////////////////////////////////
@@ -91,7 +90,7 @@ PpuLoaderStart:
 	mtps	#200
 	clr	R0
 	call	@7132(R0)			; stop FD
-	mov	#361, @#177054			; set ROM banks as RAM
+	mov	#^B1111110001, @#177054		; stop timers, map RAM on 100000+
 	; relocate code to the top of RAM
 	mov	PC, R0
 	add	#PpuLoaderUnp-., R0

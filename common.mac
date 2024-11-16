@@ -14,6 +14,7 @@ C_AY_PORT1	= 177360		; aberrant's AY devices
 C_AY_PORT2	= 177362		; mov #AYREG.. movb #AYDATA..
 C_AY_PORT3	= 177364
 C_MIDI_PORT	= 177366		; general midi
+C_COVOX_PORT	= 177372		; additional covox port (on some soundcard modifications)
 C_MOUSE_PORT	= 177400		; [YYYYYYYLXXXXXXXR] X,Y 7-bit signed
 
 
